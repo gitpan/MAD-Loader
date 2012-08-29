@@ -1,0 +1,26 @@
+Changes
+ignore.txt
+lib/MAD/Loader.pm
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+MYMETA.json
+MYMETA.yml
+README
+t/00-load.t
+t/01-core.t
+t/02-non-core-within-inc.t
+t/03-initializing-with-defaults.t
+t/04-initializing-with-custom-options.t
+t/05-custom-namespace.t
+t/06-alternative-inc-dirs.t
+t/07-failing.t
+t/boilerplate.t
+t/lib/Foo.pm
+t/lib/Foo/Bar.pm
+t/lib/Foo/Baz.pm
+t/manifest.t
+t/pod-coverage.t
+t/pod.t
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
