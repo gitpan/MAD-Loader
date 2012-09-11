@@ -1,22 +1,19 @@
-use 5.006;
+use 5.008008;
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME          => 'MAD::Loader',
-    AUTHOR        => q{Blabos de Blebe <blabos@cpan.org>},
-    VERSION_FROM  => 'lib/MAD/Loader.pm',
-    ABSTRACT_FROM => 'lib/MAD/Loader.pm',
-    ( $ExtUtils::MakeMaker::VERSION >= 6.3002
-        ? ( 'LICENSE' => 'perl' )
-        : () ),
-    PL_FILES  => {},
-    PREREQ_PM => {
-        'Test::More' => 0,
-        'Carp'       => 0,
-        'Moo'        => 0,
-    },
-    dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES    => 'MAD-Loader-*' },
+    NAME               => 'MAD::Loader',
+    AUTHOR             => q{Blabos de Blebe <blabos@cpan.org>},
+    VERSION_FROM       => 'lib/MAD/Loader.pm',
+    ABSTRACT_FROM      => 'lib/MAD/Loader.pm',
+    MIN_PERL_VERSION   => 5.008008,
+    LICENSE            => 'perl',
+    PL_FILES           => {},
+    BUILD_REQUIRES     => { 'Test::More' => 0 },
+    CONFIGURE_REQUIRES => { 'ExtUtils::MakeMake' => 6.48 },
+    PREREQ_PM          => { 'Moo' => 1.000003 },
+    dist               => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    clean => { FILES => 'MAD-Loader-*' },
 );

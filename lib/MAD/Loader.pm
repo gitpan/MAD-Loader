@@ -1,9 +1,12 @@
 package MAD::Loader;
 
+use strict;
+use warnings;
+
 use Moo;
 use Carp;
 
-our $VERSION = '0.000001';
+our $VERSION = '0.000002';
 
 has namespace => (
     is      => 'ro',
@@ -70,7 +73,7 @@ MAD::Loader - The MAD module Loader
 
 =head1 VERSION
 
-Version 0.0.1
+Version 0.0.2
 
 =cut
 
