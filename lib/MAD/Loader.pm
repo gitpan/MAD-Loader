@@ -6,7 +6,7 @@ use warnings;
 use Moo;
 use Carp;
 
-our $VERSION = '0.000003';
+our $VERSION = '1.000000';
 
 has namespace => (
     is      => 'ro',
@@ -42,6 +42,23 @@ has options => (
     },
 );
 
+has no_import => (
+    is      => 'ro',
+    default => sub {
+        return 0;
+    },
+);
+
+has on_error => (
+    is  => 'ro',
+    isa => sub {
+        die 'on_error must be an CodeRef' unless ref $_[0] eq 'CODE';
+    },
+    default => sub {
+        return \&Carp::croak;
+    },
+);
+
 sub load {
     my ( $self, @modules ) = @_;
 
@@ -49,23 +66,33 @@ sub load {
     my $initializer = $self->initializer;
     my @inc_dirs    = ( @INC, @{ $self->inc_dirs } );
     my @options     = @{ $self->options };
+    my $do_import   = not $self->no_import;
+    my $on_error    = $self->on_error;
+    my $result      = {};
 
     $namespace .= '::' if $namespace;
-    
+
     local @INC = @inc_dirs;
 
-    foreach my $module ( map { $namespace . $_ } @modules ) {
-        eval "require $module;";
-        Carp::croak $@ if $@;
+    foreach my $name (@modules) {
+        my $module = $namespace . $name;
 
-        $module->import if $module->can('import');
-        $module->$initializer(@options) if $module->can($initializer);
+        eval "require $module;";
+        $on_error->($@) if $@;
+
+        $module->import
+          if $module->can('import') && $do_import;
+
+        $result->{$name} =
+            $module->can($initializer)
+          ? $module->$initializer(@options)
+          : undef;
     }
+
+    return $result;
 }
 
 return 42;
-
-__END__
 
 =head1 NAME
 
@@ -73,9 +100,7 @@ MAD::Loader - The MAD module Loader
 
 =head1 VERSION
 
-Version 0.0.3
-
-=cut
+Version 1.0.0
 
 =head1 SYNOPSIS
 
@@ -99,14 +124,10 @@ B<namespace> and B<options>.
 
 See more details about them in documentation of their respective accessors.
 
-=cut
-
 =head2 load
 
 Takes a list of module names and tries to load all of them in order. If
 anyone fails to load, an exception is thrown.
-
-=cut
 
 =head2 inc_dirs
 
@@ -119,16 +140,12 @@ to method B<load>.
 The method B<load> will properly localize the array @INC, so the original
 content is maintained intact when it returns.
 
-=cut
-
 =head2 initializer
 
 Returns the value of B<initializer>.
 
 The B<initializer> attribute is a string with the name of the method that
 will be used to initialize the module.
-
-=cut
 
 =head2 namespace
 
@@ -137,8 +154,6 @@ Returns the namespace where look for modules.
 The B<namespace> atribute will be prefixed to the names of the modules
 before loading them.
 
-=cut
-
 =head2 options
 
 Returns the value of B<options>.
@@ -146,7 +161,25 @@ Returns the value of B<options>.
 The B<options> attribute is a list o parameters that will be passed to the
 B<initializer> method.
 
-=cut
+=head2 on_error
+
+Returns the value of B<on_error>.
+
+The B<on_error> attribute is a coderef executed when a module load fail.
+
+This sub will receive as argumment the exception thrown by B<require>.
+
+Defaults to Carp::croak.
+
+=head2 no_import
+
+Returns the value of B<no_import>.
+
+Boolean to indicate whether the import method should be called or not. An
+additional check is made to ensure that the method exists in the module
+before executing it.
+
+Deafults to B<false>.
 
 =head1 AUTHOR
 
@@ -208,3 +241,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 
 =cut
+

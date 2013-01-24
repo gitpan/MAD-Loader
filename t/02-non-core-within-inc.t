@@ -1,11 +1,13 @@
 #!perl
 
+use strict;
+use warnings;
+
 use Test::More tests => 1;
 
 use MAD::Loader;
 
-use FindBin;
-use lib "$FindBin::Bin/lib";
+use lib 't/lib';
 
 MAD::Loader->new->load(qw{ Foo });
 

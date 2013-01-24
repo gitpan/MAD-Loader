@@ -15,10 +15,17 @@ t/04-initializing-with-custom-options.t
 t/05-custom-namespace.t
 t/06-alternative-inc-dirs.t
 t/07-failing.t
+t/08-import.t
+t/09-custom-on_error.t
+t/10-return.t
 t/boilerplate.t
 t/lib/Foo.pm
 t/lib/Foo/Bar.pm
 t/lib/Foo/Baz.pm
+t/lib/Foo/Etc.pm
+t/lib/Res/Bar.pm
+t/lib/Res/Etc.pm
+t/lib/Res/Foo.pm
 t/manifest.t
 t/pod-coverage.t
 t/pod.t

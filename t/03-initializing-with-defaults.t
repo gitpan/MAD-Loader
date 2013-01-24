@@ -1,11 +1,13 @@
 #!perl
 
+use strict;
+use warnings;
+
 use Test::More tests => 5;
 
 use MAD::Loader;
 
-use FindBin;
-use lib "$FindBin::Bin/lib";
+use lib 't/lib';
 
 ok( !defined Foo->can('init'), '"Foo" not loaded' );
 ok( !defined $Foo::bar,        '"Foo" not initialized' );

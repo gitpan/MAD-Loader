@@ -1,5 +1,10 @@
 Revision history for MAD-Loader
 
+1.0.0   2013-01-24
+            - Adding option on_error
+            - Adding option no_import
+            - Retrieving initializer return values
+
 0.0.3   2012-09-25
             - Correcting typo
 
