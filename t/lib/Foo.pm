@@ -3,13 +3,17 @@ package Foo;
 use strict;
 use warnings;
 
-my $bar;
+my $foo;
 
 sub init {
     my $class = shift;
-    $Foo::bar = shift || 1;
-
-    return $Foo::bar;
+    $Foo::foo = shift || 1;
+    
+    return 42;
 }
 
-return 42;
+sub foo {
+    return $Foo::foo;
+}
+
+1;

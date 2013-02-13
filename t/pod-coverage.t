@@ -1,5 +1,7 @@
+#!perl -T
+use 5.008008;
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use Test::More;
 
 # Ensure a recent version of Test::Pod::Coverage

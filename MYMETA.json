@@ -1,12 +1,12 @@
 {
-   "abstract" : "The MAD module Loader",
+   "abstract" : "A tiny module loader",
    "author" : [
-      "Blabos de Blebe <blabos@cpan.org>"
+      "Blabos de Blebe, C<< <blabos at cpan.org> >>, Blabos de Blebe <blabos@cpan.org>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "ExtUtils::MakeMaker version 6.6302, CPAN::Meta::Converter version 2.120630",
    "license" : [
-      "perl_5"
+      "artistic_1"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -22,21 +22,25 @@
    "prereqs" : {
       "build" : {
          "requires" : {
+            "ExtUtils::MakeMaker" : "6.59",
+            "Module::Install" : "0",
             "Test::More" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.48"
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "runtime" : {
          "requires" : {
-            "Moo" : "1.000003",
+            "Carp" : "0",
+            "Const::Fast" : "0.013",
+            "Moo" : "1.000008",
             "perl" : "5.008008"
          }
       }
    },
    "release_status" : "stable",
-   "version" : "1.000000"
+   "version" : "2.000000"
 }

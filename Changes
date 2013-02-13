@@ -1,5 +1,8 @@
 Revision history for MAD-Loader
 
+2.0.0   2013-02-12
+            - Full rewrite of the module.
+
 1.0.0   2013-01-24
             - Adding option on_error
             - Adding option no_import
