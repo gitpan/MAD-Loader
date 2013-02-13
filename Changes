@@ -1,5 +1,8 @@
 Revision history for MAD-Loader
 
+2.0.1   2013-02-12
+            - Correcting pod typo
+
 2.0.0   2013-02-12
             - Full rewrite of the module.
 

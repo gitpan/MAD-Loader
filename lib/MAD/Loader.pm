@@ -9,7 +9,7 @@ use Const::Fast;
 
 const my $MODULE_NAME_REGEX => qr{^[a-z_]\w*(::\w+)*$}i;
 
-our $VERSION = '2.000000';
+our $VERSION = '2.000001';
 
 has prefix => (
     is  => 'ro',
@@ -146,7 +146,7 @@ MAD::Loader - A tiny module loader
 
 =head1 VERSION
 
-Version 2.0.0
+Version 2.0.1
 
 =head1 SYNOPSIS
 
@@ -321,7 +321,7 @@ internally into the loader.
 
 Returns the coderef of the error handler.
 
-=head2 fully_qualified_name( $method )
+=head2 fully_qualified_name( $module )
 
 This method is used to build the fully qualified name of a module.
 
