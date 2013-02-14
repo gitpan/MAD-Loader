@@ -24,6 +24,7 @@
          "requires" : {
             "ExtUtils::MakeMaker" : "6.59",
             "Module::Install" : "0",
+            "Test::Exception" : "0",
             "Test::More" : "0"
          }
       },
@@ -42,5 +43,5 @@
       }
    },
    "release_status" : "stable",
-   "version" : "2.000001"
+   "version" : "2.000002"
 }

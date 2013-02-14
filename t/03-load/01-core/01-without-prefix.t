@@ -16,7 +16,4 @@ ok(
 
 $loader->load('Data::Dumper');
 
-ok(
-    Data::Dumper->can('Dumper'),
-    'After load, Data::Dumper is loaded'
-);
+ok( Data::Dumper->can('Dumper'), 'After load, Data::Dumper is loaded' );

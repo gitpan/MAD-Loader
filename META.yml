@@ -5,6 +5,7 @@ author:
   - 'Blabos de Blebe <blabos@cpan.org>'
 build_requires:
   ExtUtils::MakeMaker: 6.59
+  Test::Exception: 0
   Test::More: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.59
@@ -31,4 +32,4 @@ resources:
   homepage: http://blabos.org
   license: http://www.perlfoundation.org/artistic_license_1_0
   repository: git://github.com/blabos/MAD-Loader.git
-version: 2.000001
+version: 2.000002

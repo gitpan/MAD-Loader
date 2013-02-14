@@ -21,7 +21,10 @@ resources(
 
 configure_requires( 'Module::Install' => 0 );
 
-build_requires( 'Test::More' => 0 );
+build_requires(
+    'Test::More'      => 0,
+    'Test::Exception' => 0,
+);
 
 requires(
     'Moo'         => 1.000008,

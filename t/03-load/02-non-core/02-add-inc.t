@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Test::More tests => 5;
+use Test::Exception;
 
 use MAD::Loader;
 
@@ -15,8 +16,8 @@ $loader = MAD::Loader->new;
 
 ok( !defined Foo->can('init'), 'Before load, Foo is not loaded' );
 
-eval { $loader->load('Foo') };
-pass 'Foo is not within @INC' if $@;
+throws_ok { $loader->load('Foo') } qr{Can.t locate Foo.pm in .INC},
+  'Foo is not within @INC';
 
 $loader = MAD::Loader->new( add_inc => ['t/lib'] );
 

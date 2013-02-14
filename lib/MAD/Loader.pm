@@ -9,7 +9,7 @@ use Const::Fast;
 
 const my $MODULE_NAME_REGEX => qr{^[a-z_]\w*(::\w+)*$}i;
 
-our $VERSION = '2.000001';
+our $VERSION = '2.000002';
 
 has prefix => (
     is  => 'ro',
@@ -91,10 +91,15 @@ sub load {
     foreach my $name (@modules) {
         my $module = $self->fully_qualified_name($name);
 
-        local $@;
-        eval "use $module;";
-        if ($@) {
-            $on_error->($@);
+        my $error;
+        {
+            local $@;
+            eval "use $module;";
+            $error = $@;
+        }
+
+        if ($error) {
+            $on_error->($error);
         }
         else {
             $result->{$name} =
@@ -134,7 +139,7 @@ sub _build_inc {
     return \@inc;
 }
 
-return 42;
+1;
 
 =pod
 
@@ -146,7 +151,7 @@ MAD::Loader - A tiny module loader
 
 =head1 VERSION
 
-Version 2.0.1
+Version 2.0.2
 
 =head1 SYNOPSIS
 
@@ -259,7 +264,7 @@ This option has priority over C<add_inc>, that is, if C<set_inc>
 is defined the value of C<add_inc> will be ignored.
 
 Again, C<@INC> will be localized internally so his original values will be
-left untouchable.
+left untouched.
 
 =head3 on_error
 
@@ -396,6 +401,8 @@ L<http://search.cpan.org/dist/MAD-Loader/>
 
 
 =head1 ACKNOWLEDGEMENTS
+
+Estante Virtual L<http://estantevirtual.com.br>
 
 
 =head1 LICENSE AND COPYRIGHT

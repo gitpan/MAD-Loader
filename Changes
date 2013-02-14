@@ -1,5 +1,9 @@
 Revision history for MAD-Loader
 
+2.0.2   2013-02-14
+            - Fix on some eval/$@ issues
+            - Fix on pod typo 
+
 2.0.1   2013-02-12
             - Correcting pod typo
 

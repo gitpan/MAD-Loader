@@ -5,6 +5,7 @@ author:
 build_requires:
   ExtUtils::MakeMaker: 6.59
   Module::Install: 0
+  Test::Exception: 0
   Test::More: 0
 configure_requires:
   ExtUtils::MakeMaker: 0
@@ -24,4 +25,4 @@ requires:
   Const::Fast: 0.013
   Moo: 1.000008
   perl: 5.008008
-version: 2.000001
+version: 2.000002
