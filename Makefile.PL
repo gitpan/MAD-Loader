@@ -28,7 +28,7 @@ build_requires(
 
 requires(
     'Moo'         => 1.000008,
-    'Carp'        => 0,
+    'Carp'        => 1.12,
     'Const::Fast' => 0.013,
 );
 

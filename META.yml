@@ -23,7 +23,7 @@ no_index:
     - inc
     - t
 requires:
-  Carp: 0
+  Carp: 1.12
   Const::Fast: 0.013
   Moo: 1.000008
   perl: 5.8.8
@@ -32,4 +32,4 @@ resources:
   homepage: http://blabos.org
   license: http://www.perlfoundation.org/artistic_license_1_0
   repository: git://github.com/blabos/MAD-Loader.git
-version: 2.000002
+version: 2.000003

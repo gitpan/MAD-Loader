@@ -9,7 +9,7 @@ use Const::Fast;
 
 const my $MODULE_NAME_REGEX => qr{^[a-z_]\w*(::\w+)*$}i;
 
-our $VERSION = '2.000002';
+our $VERSION = '2.000003';
 
 has prefix => (
     is  => 'ro',
@@ -151,7 +151,7 @@ MAD::Loader - A tiny module loader
 
 =head1 VERSION
 
-Version 2.0.2
+Version 2.0.3
 
 =head1 SYNOPSIS
 
@@ -334,18 +334,6 @@ When a namespace prefix is defined, it will be prepended to the module name.
 
 If a fully qualified name cannot be found an empty string will be returned.
 
-=head1 AUTHOR
-
-Blabos de Blebe, C<< <blabos at cpan.org> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-mad-loader at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MAD-Loader>. I will be
-notified, and then you'll automatically be notified of progress on your bug
-as I make changes.
-
 =head1 LIMITATIONS
 
 =head2 Valid Module Names
@@ -365,6 +353,44 @@ cannot be loaded by C<MAD::Loader> yet. For now this is intentional.
 The old package delimiter C<'> (single quote) is intentionally ignored
 in favor of C<::> (double colon). Modules with single quote as package
 delimiter also cannot be loaded by C<MAD::Loader>.
+
+=head1 CAVEATS
+
+The options C<add_inc> and C<set_inc> are used to isolate the environment
+where the search by modules is made, allowing you precisely control where
+MAD::Loader will look for modules.
+
+You may use this features when your application must load plugins and you
+must assure that only modules within specific directories can be valid
+plugins for example.
+
+A collateral effect is that when a module loaded by MAD::Loader tries to
+dynamically load another module, this module will be searched only within
+the directories known by MAD::Laoder.
+
+If you use the option C<set_inc> to limitate MAD::Loader to search only
+within the directory C</my/plugins> for example, and some plugin tries to
+load a module placed out of this path your plugin will fail like this:
+
+    Can't locate SomeModule.pm in @INC (@INC contains: /my/plugins) at
+    /my/plugins/Myplugin.pm line 42.
+
+Note that actually this is a feature, not a bug. If you isolate the search
+path with MAD::Loader you will be sure that no module will bypass your
+limitation, except if it know the search path of his sub-modules by itself
+(in this case, there is little to do :) ).
+
+=head1 AUTHOR
+
+Blabos de Blebe, C<< <blabos at cpan.org> >>
+
+=head1 BUGS
+
+Please report any bugs or feature requests to
+C<bug-mad-loader at rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MAD-Loader>. I will be
+notified, and then you'll automatically be notified of progress on your bug
+as I make changes.
 
 =head1 SUPPORT
 
@@ -417,4 +443,3 @@ See http://dev.perl.org/licenses/ for more information.
 
 
 =cut
-
