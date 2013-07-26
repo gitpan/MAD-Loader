@@ -32,14 +32,11 @@ t/02-methods/02-load/02-set-inc.t
 t/02-methods/03-build/01-without-args.t
 t/02-methods/03-build/02-with-args.t
 t/02-methods/04-load-and-build/01-load-and-build.t
-t/boilerplate.t
+t/author-critic.t
 t/lib/Foo/Bar.pm
 t/lib/Foo/Bar/1.pm
 t/lib/Foo/Bar/2.pm
 t/lib/Foo/Bar/3.pm
 t/lib/Foo/Bar/4.pm
-t/manifest.t
-t/perlcritic.t
-t/perlcriticrc
-t/pod-coverage.t
-t/pod.t
+t/release-pod-coverage.t
+t/release-pod-syntax.t

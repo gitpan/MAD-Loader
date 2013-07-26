@@ -17,7 +17,7 @@ our @EXPORT_OK = qw{
 use Carp;
 use Const::Fast;
 
-our $VERSION = '3.000000_001';
+our $VERSION = '3.000000_002';
 
 const our $MODULE_NAME_REGEX => qr{^[_[:upper:]]\w*(::\w+)*$};
 

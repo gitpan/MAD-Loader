@@ -24,4 +24,4 @@ requires:
   Const::Fast: 0.014
   Moo: 1.003
   perl: 5.016
-version: 3.000000_001
+version: 3.000000_002
