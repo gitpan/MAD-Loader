@@ -2,76 +2,88 @@ package MAD::Loader;
 
 use strict;
 use warnings;
+use utf8;
+use 5.016;
 
 use Moo;
+extends 'Exporter';
+
+our @EXPORT_OK = qw{
+  fqn
+  load_module
+  build_object
+};
+
 use Carp;
 use Const::Fast;
 
-const my $MODULE_NAME_REGEX => qr{^[a-z_]\w*(::\w+)*$}i;
+our $VERSION = '3.000000_001';
 
-our $VERSION = '2.000003';
+const our $MODULE_NAME_REGEX => qr{^[_[:upper:]]\w*(::\w+)*$};
 
-has prefix => (
+has 'prefix' => (
     is  => 'ro',
     isa => sub {
-        die "Invalid prefix '$_[0]'"
+        Carp::croak "Invalid prefix '$_[0]'"
           unless $_[0] eq '' || $_[0] =~ $MODULE_NAME_REGEX;
     },
     default => sub {
         return '';
-    }
+    },
 );
 
-has initializer => (
+has 'builder' => (
     is      => 'ro',
     default => sub {
-        return '';
-    }
+        return 'new';
+    },
 );
 
-has set_inc => (
+has 'set_inc' => (
     is  => 'ro',
     isa => sub {
-        die 'set_inc must be an ArrayRef or "undef"'
-          unless !defined $_[0] || ref $_[0] eq 'ARRAY';
+        Carp::croak 'set_inc must be an ArrayRef or "undef"'
+          if defined $_[0] && ref $_[0] ne 'ARRAY';
     },
     default => sub {
-        return undef;
+        return;
     },
 );
 
-has add_inc => (
+has 'add_inc' => (
     is  => 'ro',
     isa => sub {
-        die 'add_inc must be an ArrayRef or "undef"'
-          unless !defined $_[0] || ref $_[0] eq 'ARRAY';
+        Carp::croak 'add_inc must be an ArrayRef or "undef"'
+          if defined $_[0] && ref $_[0] ne 'ARRAY';
     },
     default => sub {
-        return undef;
+        return;
     },
 );
 
-has inc => (
-    is  => 'lazy',
-    isa => sub {
-        die 'inc must be an ArrayRef' unless ref $_[0] eq 'ARRAY';
-    },
-);
-
-has options => (
+has 'inc' => (
     is  => 'ro',
     isa => sub {
-        die 'options must be an ArrayRef' unless ref $_[0] eq 'ARRAY';
+        Carp::croak 'inc must be an ArrayRef' unless ref $_[0] eq 'ARRAY';
+    },
+    lazy    => 1,
+    builder => 1,
+);
+
+has 'args' => (
+    is  => 'ro',
+    isa => sub {
+        Carp::croak 'options must be an ArrayRef' unless ref $_[0] eq 'ARRAY';
     },
     default => sub {
         return [];
     },
 );
 
-has on_error => (
+has 'on_error' => (
     is  => 'ro',
     isa => sub {
-        die 'on_error must be an CodeRef' unless ref $_[0] eq 'CODE';
+        Carp::croak 'on_error must be an CodeRef' unless ref $_[0] eq 'CODE';
     },
     default => sub {
         return \&Carp::croak;
@@ -81,45 +93,99 @@ has on_error => (
 sub load {
     my ( $self, @modules ) = @_;
 
-    my $initializer = $self->initializer;
-    my @options     = @{ $self->options };
-    my $on_error    = $self->on_error;
-    my $result      = {};
-
-    local @INC = @{ $self->inc };
-
-    foreach my $name (@modules) {
-        my $module = $self->fully_qualified_name($name);
-
-        my $error;
-        {
-            local $@;
-            eval "use $module;";
-            $error = $@;
-        }
-
-        if ($error) {
-            $on_error->($error);
-        }
-        else {
-            $result->{$name} =
-                $module->can($initializer)
-              ? $module->$initializer(@options)
-              : undef;
-        }
+    my %result;
+    foreach my $module (@modules) {
+        $result{$module} = load_module(
+            module   => $module,
+            prefix   => $self->prefix,
+            on_error => $self->on_error,
+            inc      => $self->inc,
+        );
     }
 
-    return $result;
+    return \%result;
 }
 
-sub fully_qualified_name {
-    my $self = shift;
-    my $name = shift || '';
+sub build {
+    my ( $self, @modules ) = @_;
 
-    $name = $self->prefix . '::' . $name
-      if $self->prefix;
+    my %result;
+    foreach my $module (@modules) {
+        $result{$module} = build_object(
+            module  => $module,
+            builder => $self->builder,
+            args    => $self->args,
+        );
+    }
 
-    return $name =~ $MODULE_NAME_REGEX ? $name : '';
+    return \%result;
+}
+
+sub load_and_build {
+    my ( $self, @modules ) = @_;
+
+    my $loaded = $self->load(@modules);
+    my $built  = $self->build( values %{$loaded} );
+
+    return $built;
+}
+
+sub fqn {
+    my $module = shift || '';
+    my $prefix = shift;
+
+    $module = $prefix . q{::} . $module
+      if $prefix;
+
+    return $module =~ $MODULE_NAME_REGEX ? $module : '';
+}
+
+sub load_module {
+    my (%args) = @_;
+
+    local @INC = @{ $args{inc} };
+
+    my $module = fqn( $args{module}, $args{prefix} );
+    my $on_error = $args{on_error} || \&Carp::croak;
+    my $error;
+    {
+        ## no critic (ErrorHandling::RequireCheckingReturnValueOfEval)
+        local $@ = '';
+        eval "use $module;";
+        $error = $@;
+        ## use critic
+    }
+
+    if ($error) {
+        $module = '';
+        $on_error->($error);
+    }
+
+    return $module;
+}
+
+sub build_object {
+    my (%args) = @_;
+
+    my $module   = $args{module};
+    my $builder  = $args{builder};
+    my @args     = @{ $args{args} };
+    my $on_error = $args{on_error} || \&Carp::croak;
+
+    my ( $instance, $error );
+    {
+        ## no critic (ErrorHandling::RequireCheckingReturnValueOfEval)
+        local $@ = '';
+        eval { $instance = $module->$builder(@args); };
+        $error = $@;
+        ## use critic
+    }
+
+    if ($error) {
+        $on_error->($error);
+    }
+
+    return $instance;
 }
 
 sub _build_inc {
@@ -141,51 +207,160 @@ sub _build_inc {
 
 1;
 
+__END__
+
 =pod
 
 =encoding utf8
+
 
 =head1 NAME
 
 MAD::Loader - A tiny module loader
 
+
 =head1 VERSION
 
-Version 2.0.3
+Version 3.0.0
+
 
 =head1 SYNOPSIS
 
-MAD::loader is a module loader for situations when you want several modules
-being loaded dynamically.
+MAD::loader is a module loader and object builder for situations when you
+want several modules being loaded dynamically.
 
-For each module loaded this way an initializer method may be called with
-custom arguments. You may also control where the loader will search for
+For each module loaded this way an builder method may be called with
+or without arguments. You may also control where the loader will search for
 modules, you may prefix the module names with a custom namespace and you
-may change how it will behave on loading errors.
+may change how it will behave on getting errors.
 
+    ## Procedural interface, for handling one module each time
+    use MAD::Loader qw{ fqn load_module build_object };
+    
+    my $fqn = fqn( 'My::Module', 'My::Prefix' );
+    # $fqn is 'My::Prefix::My::Module'
+    
+    my $module = load_module(
+        module      => 'Bar',
+        prefix      => 'Foo',
+        inc         => [ 'my/local/lib' ],
+        on_error    => \&error_handler,
+    );
+    # $module is 'Foo::Bar' if Foo::Bar was successfully loaded
+    # error_handler() will be called in case of error
+    
+    my $object = build_object(
+        module      => 'Foo::Bar',
+        builder     => 'new',
+        args        => [ 123, 456 ],
+        on_error    => \&error_handler,
+    );
+    # Foo::Bar must be already loaded
+    # $object = Foo::Bar->new( 123, 456 );
+    
+    ## OO interface, for handling many modules each time
     use MAD::Loader;
 
     my $loader = MAD::Loader->new(
         prefix      => 'Foo',
         set_inc     => [ 'my/module/dir' ],
-        initializer => 'new',
-        options     => [ 123, 456 ],
+        builder     => 'new',
+        args        => [ 123, 456 ],
         on_error    => \&error_handler,
     );
     
-    my $res = $loader->load(qw{ Bar Baz });
+    my $loaded = $loader->load( qw{ Bar Etc 123 } );
+    # Same as:
+    use Foo::Bar;
+    use Foo::Etc;
+    use Foo::123;
     
-    my $bar_obj = $res->{Bar};
-    my $baz_obj = $res->{Baz};
+    my $built = $loader->build( qw{ Foo::Bar Foo::Etc Foo::123 } );
+    # Same as:
+    my $built = {
+        Foo::Bar => Foo::Bar->new( 123, 456 ),
+        Foo::Etc => Foo::Etc->new( 123, 456 ),
+        Foo::123 => Foo::123->new( 123, 456 ),
+    }
     
-    my $etc = Foo::Bar->new( 42, 13 );
+    my $built = $loader->load_and_build( qw{ Bar Etc 123 } );
+    # Same as:
+    use Foo::Bar;
+    use Foo::Etc;
+    use Foo::123;
+    
+    my $built = {
+        Foo::Bar => Foo::Bar->new( 123, 456 ),
+        Foo::Etc => Foo::Etc->new( 123, 456 ),
+        Foo::123 => Foo::123->new( 123, 456 ),
+    }
 
-In the example above, the loader will search for modules named 'Foo::Bar' and
-'Foo::Baz' only within directory 'my/module/dir'. The coderef 'error_handler'
-will be called for each module that fail to load. For each module found, the
-method 'new' will be called with the array ( 123, 456 ) as argument. All
-objects built this way will be returned within the hashref $res which has as
-keys the module names provided to method 'load'.
+
+=head1 FUNCTIONS
+
+=head2 fqn( $module [, $prefix] )
+
+This method is used to validate the full name of a C<$module>. If an optional
+C<$prefix> is given, it will be prepended to the C<$module> before being
+validated.
+
+The fqn is validated against the regular expression in C<$MODULE_NAME_REGEX>
+which is C<qr{^[_[:lower:]]\w*(::\w+)*$}i>.
+
+If a valid fqn can not be found then an empty string is returned.
+
+Note that only the non-ascii characters recognized by C<[:upper:]> and C<\w>
+can be part of the module name or prefix.
+
+Numbers are valid except for the B<first character> of the fqn.
+
+=head2 load_module( %args )
+
+Tries to load a single module.
+
+Receives as argument a hash containing the following keys:
+
+=head3 module (Mandatory)
+
+The module name.
+
+=head3 inc (Mandatory)
+
+An ArrayRef with the list of directories where to look for the module. This
+replaces locally the array @INC.
+
+=head3 prefix (Optional)
+
+A namespace to prefix the module name. Defaults to C<''>.
+
+=head3 on_error (Optional)
+
+An error handler to be executed when found errors. Defaults to
+C<\&Carp::croak>.
+
+=head2 build_object( %args )
+
+Tries to build an object from a loaded module.
+
+Receives as argument a hash containing the following keys:
+
+=head3 module (Mandatory)
+
+The module name.
+
+=head3 builder (Mandatory)
+
+The name of method used to build the object.
+
+=head3 args (Optional)
+
+An ArrayRef of parameters to be passed to the builder method.
+
+=head3 on_error (Optional)
+
+An error handler to be executed when found errors. Defaults to
+C<\&Carp::croak>.
+
 
 =head1 METHODS
 
@@ -193,8 +368,8 @@ keys the module names provided to method 'load'.
 
 Creates a loader object.
 
-You may provide any optional arguments: B<prefix>, B<initializer>,
-B<options>, B<add_inc>, B<set_inc> and B<on_error>.
+You may provide any optional arguments: B<prefix>, B<builder>,
+B<args>, B<add_inc>, B<set_inc> and B<on_error>.
 
 =head3 prefix
 
@@ -210,55 +385,53 @@ The default value is '' (empty string) meaning that no prefix will be used.
     ##  * Foo::Etc
     ##  * Foo::123
 
-=head3 initializer
+=head3 builder
 
-The name of the method used to initialize/instantiate the module.
+The name of the method used to create a new object or to initialize the
+module.
 
-The deault value is C<''> (empty string) meaning that no method will be
-called.
+The default value is C<''> (empty string).
 
-When an C<initializer> is defined the loader will try to call it like as a
-constructor passing the array C<options> as argument.
-
-Note that the C<initializer> must be defined as a method of the module before
-it can be called or it will be ignored.
+When an C<builder> is defined the loader will try to call it like as a
+constructor passing the array C<args> as argument.
 
 The code below:
 
     my $loader = MAD::Loader->new(
-        initializer => 'init',
-        options     => [ 1, 2, 3 ],
+        builder => 'init',
+        args    => [ 1, 2, 3 ],
     );
     $loader->load( 'Foo' );
+    $loader->build( 'Foo' );
 
 Will cause something like this to occur:
 
-    Foo->init( 1, 2, 3 )
-        if Foo->can( 'init' );
+    use Foo;
+    Foo->init( 1, 2, 3 );
 
-=head3 options
+=head3 args
 
-An arrayref with the options provided to all initializers.
+An ArrayRef with the arguments provided to all builders.
 
-Note that although C<options> be an arrayref, it will be passed as an B<array>
-to C<initializer>.
+Note that although C<args> is an ArrayRef, it will be passed as an B<array>
+to C<builder>.
 
-When several modules are loaded together, the same C<options> will be passed
-to their initializers.
+When several modules are loaded together, the same C<args> will be passed
+to their builders.
 
 =head3 add_inc
 
-An arrayref with directories to be prepended to C<@INC>.
+An ArrayRef with directories to be prepended to C<@INC>.
 
 The array C<@INC> will be localized before the loader add these directories,
 so the original state of C<@INC> will be preserved out of the loader.
 
-The default value is C<[]> meaning that original value of C<@INC> will be
+The default value is C<undef> meaning that original value of C<@INC> will be
 used.
 
 =head3 set_inc
 
-An arrayref of directories used to override C<@INC>.
+An ArrayRef of directories used to override C<@INC>.
 
 This option has priority over C<add_inc>, that is, if C<set_inc>
 is defined the value of C<add_inc> will be ignored.
@@ -268,10 +441,10 @@ left untouched.
 
 =head3 on_error
 
-An error handler called when a module fails to load. His only argument will
-be the exception thrown.
+An error handler called when a module fails to load or build an object. His
+only argument will be the exception thrown.
 
-This is a coderef and the default value is C<Carp::croak>.
+This is a coderef and the default value is C<\&Carp::croak>.
 
 =head2 load( @modules )
 
@@ -290,49 +463,56 @@ The term "invalid" is subject of discussion ahead.
 The loader will search for modules into directories pointed by C<@INC> which
 may be changed by attributes C<add_inc> and C<set_inc>.
 
-If an C<initializer> was defined, it will be called for each module loaded,
-receiving as argument the array provided by the attribute C<options>.
-
 In the end, if no exception was thrown, the method C<load> will return a
-hashref which the keys are the module names passed to it (without prefix)
-and the values are whatever the C<initializer> returns.
+HashRef which the keys are the module names passed to it (without prefix)
+and the values are the fqn (with prefix) of the module if it was loaded or an
+empty string if it was not loaded.
+
+=head2 build( @modules )
+
+Takes a list of modules (fqn) already loaded and for each one, tries to
+build an object calling the method indicated by C<builder>, passing to it the
+arguments in C<args>.
+
+Returns a HashRef which the keys are the names of the modules and the
+values are the objects.
+
+=head2 load_and_build( @modules )
+
+A mix of C<load> and C<build>. Receives a list of modules, tries to prepend
+them with C<prefix>, load all and finally build an object for each one.
+
+Returns the same as C<build>.
 
 =head2 prefix
 
 Returns the namespace C<prefix> as described above.
 
-=head2 initializer
+=head2 builder
 
-Returns the name of the C<initializer> as described above.
+Returns the name of the C<builder> as described above.
 
-=head2 options
+=head2 args
 
-Returns an arrayref with the C<options> provided to all initializers.
+Returns an ArrayRef with the C<args> provided to all builders.
 
 =head2 add_inc
 
-Returns the arrayref of directories prepended to C<@INC>.
+Returns the ArrayRef of directories prepended to C<@INC>.
 
 =head2 set_inc
 
-Returns the arrayref of directories used to override C<@INC>.
+Returns the ArrayRef of directories used to override C<@INC>.
 
 =head2 inc
 
-Returns the arrayref of directories that represents the content of C<@INC>
+Returns the ArrayRef of directories that represents the content of C<@INC>
 internally into the loader.
 
 =head2 on_error
 
-Returns the coderef of the error handler.
+Returns the CodeRef of the error handler.
 
-=head2 fully_qualified_name( $module )
-
-This method is used to build the fully qualified name of a module.
-
-When a namespace prefix is defined, it will be prepended to the module name.
-
-If a fully qualified name cannot be found an empty string will be returned.
 
 =head1 LIMITATIONS
 
@@ -340,19 +520,21 @@ If a fully qualified name cannot be found an empty string will be returned.
 
 This module tries to define what is a valid module name. Arbitrarily we
 consider a valid module name whatever module that matches with the regular
-expression C<qr{^[a-z_]\w*(::\w+)*$}i>.
+expression C<qr{^[_[:upper:]]\w*(::\w+)*$}i>.
 
 This validation is to avoid injection of arbitrarily code as fake module
 names and the regular expression above should be changed in future versions
 or a better approach may be considered.
 
 Therefore some valid module names are considered invalid within
-C<MAD::Loader> as names with UTF-8 characters for example. These modules
-cannot be loaded by C<MAD::Loader> yet. For now this is intentional.
+C<MAD::Loader> as names with some UTF-8 characters for example.
+These modules cannot be loaded by C<MAD::Loader> yet. For now this B<IS>
+intentional.
 
-The old package delimiter C<'> (single quote) is intentionally ignored
+The old package delimiter C<'> (single quote) is also intentionally ignored
 in favor of C<::> (double colon). Modules with single quote as package
-delimiter also cannot be loaded by C<MAD::Loader>.
+delimiter cannot be loaded by C<MAD::Loader>.
+
 
 =head1 CAVEATS
 
@@ -370,7 +552,7 @@ the directories known by MAD::Laoder.
 
 If you use the option C<set_inc> to limitate MAD::Loader to search only
 within the directory C</my/plugins> for example, and some plugin tries to
-load a module placed out of this path your plugin will fail like this:
+load a module placed out of this path, your plugin will fail like this:
 
     Can't locate SomeModule.pm in @INC (@INC contains: /my/plugins) at
     /my/plugins/Myplugin.pm line 42.
@@ -380,15 +562,13 @@ path with MAD::Loader you will be sure that no module will bypass your
 limitation, except if it know the search path of his sub-modules by itself
 (in this case, there is little to do :) ).
 
-=head1 AUTHOR
-
-Blabos de Blebe, C<< <blabos at cpan.org> >>
+See L<https://github.com/blabos/MAD-Loader/issues/1> for an example.
 
 =head1 BUGS
 
 Please report any bugs or feature requests to
 C<bug-mad-loader at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MAD-Loader>. I will be
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MAD-Builder>. I will be
 notified, and then you'll automatically be notified of progress on your bug
 as I make changes.
 
@@ -405,31 +585,29 @@ You can also look for information at:
 
 =item * Github repository
 
-L<https://github.com/blabos/MAD-Loader>
+L<https://github.com/blabos/MAD-Builder>
 
 =item * RT: CPAN's request tracker (report bugs here)
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=MAD-Loader>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=MAD-Builder>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/MAD-Loader>
+L<http://annocpan.org/dist/MAD-Builder>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/MAD-Loader>
+L<http://cpanratings.perl.org/d/MAD-Builder>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/MAD-Loader/>
+L<http://search.cpan.org/dist/MAD-Builder/>
 
 =back
-
 
 =head1 ACKNOWLEDGEMENTS
 
 Estante Virtual L<http://estantevirtual.com.br>
-
 
 =head1 LICENSE AND COPYRIGHT
 
@@ -439,7 +617,6 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
-See http://dev.perl.org/licenses/ for more information.
-
+See L<http://dev.perl.org/licenses/> for more information.
 
 =cut

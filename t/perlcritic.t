@@ -5,8 +5,8 @@ use File::Spec;
 
 eval { require Test::Perl::Critic };
 if ($@) {
-    Test::More::plan(
-        skip_all => "Test::Perl::Critic required for testing PBP compliance" );
+    Test::More::plan( skip_all =>
+          "Test::Perl::Critic required for testing PBP compliance" );
 }
 
 my $rcfile = File::Spec->catfile( 't', 'perlcriticrc' );

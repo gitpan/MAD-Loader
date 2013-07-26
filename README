@@ -1,12 +1,12 @@
 MAD-Loader
 
-MAD::loader is a module loader for situations when you want several modules
-being loaded dynamically.
+MAD::loader is a module loader and object builder for situations when you
+want several modules being loaded dynamically.
 
-For each module loaded this way an initializer method may be called with
-custom arguments. You may also control where the loader will search for
+For each module loaded this way an builder method may be called with
+or without arguments. You may also control where the loader will search for
 modules, you may prefix the module names with a custom namespace and you
-may change how it will behave on loading errors.
+may change how it will behave on getting errors.
 
 
 INSTALLATION
