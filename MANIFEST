@@ -34,6 +34,7 @@ t/02-methods/03-build/02-with-args.t
 t/02-methods/04-load-and-build/01-load-and-build.t
 t/author-critic.t
 t/lib/Foo/Bar.pm
+t/lib/Foo/Bar/0.pm
 t/lib/Foo/Bar/1.pm
 t/lib/Foo/Bar/2.pm
 t/lib/Foo/Bar/3.pm

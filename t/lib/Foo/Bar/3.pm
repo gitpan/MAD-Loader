@@ -1,6 +1,7 @@
 package Foo::Bar::3;
 
 use Moo;
+extends 'Foo::Bar::0';
 
 has 'foo' => (
     is      => 'ro',
@@ -12,6 +13,14 @@ sub BUILDARGS {
 
     unshift @args, 'foo' if @args;
     return {@args};
+}
+
+sub BUILD {
+    my ($self) = @_;
+
+    push @Foo::Bar::0::build_order, __PACKAGE__;
+
+    return;
 }
 
 1;

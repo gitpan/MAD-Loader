@@ -17,7 +17,7 @@ our @EXPORT_OK = qw{
 use Carp;
 use Const::Fast;
 
-our $VERSION = '3.000000_002';
+our $VERSION = '3.000000';
 
 const our $MODULE_NAME_REGEX => qr{^[_[:upper:]]\w*(::\w+)*$};
 
@@ -125,7 +125,7 @@ sub load_and_build {
     my ( $self, @modules ) = @_;
 
     my $loaded = $self->load(@modules);
-    my $built  = $self->build( values %{$loaded} );
+    my $built  = $self->build( @{$loaded}{@modules} );
 
     return $built;
 }

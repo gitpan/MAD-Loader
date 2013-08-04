@@ -24,6 +24,21 @@ foreach my $module ( sort keys %{$built} ) {
     };
 }
 
+no warnings 'once';
+is_deeply(
+    \@Foo::Bar::0::build_order,
+    [
+        qw{
+          Foo::Bar::1
+          Foo::Bar::2
+          Foo::Bar::3
+          Foo::Bar::4
+          }
+    ],
+    'Build order must be the same as load order',
+);
+use warnings;
+
 $loader = MAD::Loader->new(
     prefix  => 'Foo::Bar',
     set_inc => ['t/lib'],
