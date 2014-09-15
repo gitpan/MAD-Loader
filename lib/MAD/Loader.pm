@@ -1,25 +1,19 @@
 package MAD::Loader;
-
-use strict;
-use warnings;
-use utf8;
-use 5.016;
-
+$MAD::Loader::VERSION = '3.001000';
 use Moo;
 extends 'Exporter';
+
+use Carp;
+use Const::Fast;
+
+const our $MODULE_NAME_REGEX => qr{^[_[:upper:]]\w*(::\w+)*$};
 
 our @EXPORT_OK = qw{
   fqn
   load_module
   build_object
+  load_and_new
 };
-
-use Carp;
-use Const::Fast;
-
-our $VERSION = '3.000000';
-
-const our $MODULE_NAME_REGEX => qr{^[_[:upper:]]\w*(::\w+)*$};
 
 has 'prefix' => (
     is  => 'ro',
@@ -188,6 +182,20 @@ sub build_object {
     return $instance;
 }
 
+sub load_and_new {
+    my (%args) = @_;
+
+    return build_object(
+        module => load_module(
+            module => $args{module},
+            prefix => $args{prefix},
+            inc    => [@INC],
+        ),
+        builder => 'new',
+        args    => $args{args},
+    );
+}
+
 sub _build_inc {
     my ($self) = @_;
 
@@ -207,22 +215,21 @@ sub _build_inc {
 
 1;
 
+#ABSTRACT: A tiny module loader
+
 __END__
 
 =pod
 
-=encoding utf8
-
+=encoding UTF-8
 
 =head1 NAME
 
 MAD::Loader - A tiny module loader
 
-
 =head1 VERSION
 
-Version 3.0.0
-
+version 3.001000
 
 =head1 SYNOPSIS
 
@@ -295,7 +302,6 @@ may change how it will behave on getting errors.
         Foo::123 => Foo::123->new( 123, 456 ),
     }
 
-
 =head1 FUNCTIONS
 
 =head2 fqn( $module [, $prefix] )
@@ -361,6 +367,13 @@ An ArrayRef of parameters to be passed to the builder method.
 An error handler to be executed when found errors. Defaults to
 C<\&Carp::croak>.
 
+=head2 load_and_new( %args )
+
+A shortcut for C<load_module> then C<build_object> with some predefined
+args.
+
+C<inc> is set to C<@INC> and c<builder> to C<'new'>. It is expected to deal
+only with module, prefix and builder args.
 
 =head1 METHODS
 
@@ -513,7 +526,6 @@ internally into the loader.
 
 Returns the CodeRef of the error handler.
 
-
 =head1 LIMITATIONS
 
 =head2 Valid Module Names
@@ -534,7 +546,6 @@ intentional.
 The old package delimiter C<'> (single quote) is also intentionally ignored
 in favor of C<::> (double colon). Modules with single quote as package
 delimiter cannot be loaded by C<MAD::Loader>.
-
 
 =head1 CAVEATS
 
@@ -564,59 +575,15 @@ limitation, except if it know the search path of his sub-modules by itself
 
 See L<https://github.com/blabos/MAD-Loader/issues/1> for an example.
 
-=head1 BUGS
+=head1 AUTHOR
 
-Please report any bugs or feature requests to
-C<bug-mad-loader at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MAD-Builder>. I will be
-notified, and then you'll automatically be notified of progress on your bug
-as I make changes.
+Blabos de Blebe <blabos@cpan.org>
 
-=head1 SUPPORT
+=head1 COPYRIGHT AND LICENSE
 
-You can find documentation for this module with the perldoc command.
+This software is copyright (c) 2014 by Blabos de Blebe.
 
-    perldoc MAD::Loader
-
-
-You can also look for information at:
-
-=over 4
-
-=item * Github repository
-
-L<https://github.com/blabos/MAD-Builder>
-
-=item * RT: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=MAD-Builder>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/MAD-Builder>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/MAD-Builder>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/MAD-Builder/>
-
-=back
-
-=head1 ACKNOWLEDGEMENTS
-
-Estante Virtual L<http://estantevirtual.com.br>
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2013 Blabos de Blebe.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See L<http://dev.perl.org/licenses/> for more information.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

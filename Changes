@@ -1,6 +1,15 @@
 Revision history for MAD-Loader
 
-2.03    2013-03-02
+3.1.0   2014-09-15
+            - Added new function 'load_and_new' to functional interface
+
+3.0.0   2013-08-04
+            - New attributes
+            - New functional interface
+            - Changing from Test::More to Test::Most
+            - Incompatible with 2.x series
+
+2.0.3   2013-03-02
             - Setting minimum version of Carp as dependency
 
 2.0.2   2013-02-14

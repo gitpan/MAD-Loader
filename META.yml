@@ -1,34 +1,26 @@
 ---
 abstract: 'A tiny module loader'
 author:
-  - 'Blabos de Blebe.'
   - 'Blabos de Blebe <blabos@cpan.org>'
 build_requires:
-  ExtUtils::MakeMaker: 6.59
-  Test::Most: 0.31
+  File::Spec: '3.47'
+  Scalar::Util: '1.38'
+  Test::Most: '0.34'
+  Test::Perl::Critic: '1.02'
 configure_requires:
-  ExtUtils::MakeMaker: 6.59
-  Module::Install: 0
-distribution_type: module
-dynamic_config: 1
-generated_by: 'Module::Install version 1.06'
-license: artistic
+  ExtUtils::MakeMaker: '6.30'
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.140640'
+license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
+  version: '1.4'
 name: MAD-Loader
-no_index:
-  directory:
-    - inc
-    - t
 requires:
-  Carp: 1.29
-  Const::Fast: 0.014
-  Moo: 1.003
-  perl: 5.16.0
+  Carp: '1.12'
+  Const::Fast: '0.014'
+  Moo: '1.004006'
 resources:
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=MAD-Loader
-  homepage: http://blabos.org
-  license: http://www.perlfoundation.org/artistic_license_1_0
-  repository: git://github.com/blabos/MAD-Loader.git
-version: 3.000000
+  bugtracker: https://github.com/blabos/MAD-Loader/issues
+  repository: https://github.com/blabos/MAD-Loader
+version: '3.001000'
