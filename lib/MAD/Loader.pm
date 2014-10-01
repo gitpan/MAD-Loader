@@ -1,5 +1,5 @@
 package MAD::Loader;
-$MAD::Loader::VERSION = '3.001000';
+$MAD::Loader::VERSION = '3.001001';
 use Moo;
 extends 'Exporter';
 
@@ -19,7 +19,7 @@ has 'prefix' => (
     is  => 'ro',
     isa => sub {
         Carp::croak "Invalid prefix '$_[0]'"
-          unless $_[0] eq '' || $_[0] =~ $MODULE_NAME_REGEX;
+          unless '' eq $_[0] || $_[0] =~ $MODULE_NAME_REGEX;
     },
     default => sub {
         return '';
@@ -37,7 +37,7 @@ has 'set_inc' => (
     is  => 'ro',
     isa => sub {
         Carp::croak 'set_inc must be an ArrayRef or "undef"'
-          if defined $_[0] && ref $_[0] ne 'ARRAY';
+          if defined $_[0] && 'ARRAY' ne ref $_[0];
     },
     default => sub {
         return;
@@ -58,7 +58,8 @@ has 'add_inc' => (
 has 'inc' => (
     is  => 'ro',
     isa => sub {
-        Carp::croak 'inc must be an ArrayRef' unless ref $_[0] eq 'ARRAY';
+        Carp::croak 'inc must be an ArrayRef'
+          unless 'ARRAY' eq ref $_[0];
     },
     lazy    => 1,
     builder => 1,
@@ -67,7 +68,8 @@ has 'inc' => (
 has 'args' => (
     is  => 'ro',
     isa => sub {
-        Carp::croak 'options must be an ArrayRef' unless ref $_[0] eq 'ARRAY';
+        Carp::croak 'options must be an ArrayRef'
+          unless 'ARRAY' eq ref $_[0];
     },
     default => sub {
         return [];
@@ -77,7 +79,8 @@ has 'args' => (
 has 'on_error' => (
     is  => 'ro',
     isa => sub {
-        Carp::croak 'on_error must be an CodeRef' unless ref $_[0] eq 'CODE';
+        Carp::croak 'on_error must be an CodeRef'
+          unless 'CODE' eq ref $_[0];
     },
     default => sub {
         return \&Carp::croak;
@@ -229,7 +232,7 @@ MAD::Loader - A tiny module loader
 
 =head1 VERSION
 
-version 3.001000
+version 3.001001
 
 =head1 SYNOPSIS
 

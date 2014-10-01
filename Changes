@@ -1,5 +1,8 @@
 Revision history for MAD-Loader
 
+3.1.1   2014-10-10
+            - Fixed wrong interpolation in some tests
+
 3.1.0   2014-09-15
             - Added new function 'load_and_new' to functional interface
 

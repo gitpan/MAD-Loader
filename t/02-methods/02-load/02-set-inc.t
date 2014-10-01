@@ -1,7 +1,7 @@
 #!perl
 
 use Test::Most;
-use MAD::Loader;
+use MAD::Loader qw{ fqn };
 
 local @INC = ('/foo/bar');
 
@@ -9,7 +9,7 @@ my $prefix = 'Foo::Bar';
 my $loader;
 
 subtest 'Before load' => sub {
-    foreach my $module ( map { "$prefix::$_" } 1 .. 4 ) {
+    foreach my $module ( map { fqn( $_, $prefix ) } 1 .. 4 ) {
         ok( !$module->can('foo'), $module . '::foo() not found' );
     }
 };
@@ -35,12 +35,12 @@ is_deeply(
 );
 
 subtest 'After load' => sub {
-    foreach my $module ( map { "$prefix::$_" } 1 .. 4 ) {
+    foreach my $module ( map { fqn( $_, $prefix ) } 1 .. 4 ) {
         ok( $module->can('foo'), $module . '::foo() found' );
     }
 };
 
-is_deeply( $loader->inc, ['t/lib'], 'Internal @INC of loader is ["t/lib"]' );
-is_deeply( \@INC, ['/foo/bar'], 'Global @INC is untouchable' );
+is_deeply( $loader->inc, ['t/lib'],    'Internal @INC of loader is ["t/lib"]' );
+is_deeply( \@INC,        ['/foo/bar'], 'Global @INC is untouchable' );
 
 done_testing;

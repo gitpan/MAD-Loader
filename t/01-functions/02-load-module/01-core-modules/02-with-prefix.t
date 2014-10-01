@@ -2,12 +2,12 @@
 
 use utf8;
 use Test::Most;
-use MAD::Loader qw{ load_module };
+use MAD::Loader qw{ load_module fqn };
 
 my $prefix     = 'Data';
 my $module     = 'Dumper';
 my $method     = 'Dumper';
-my $fqn_module = "$prefix::$module";
+my $fqn_module = fqn( $module, $prefix );
 my $result     = '';
 
 ok( !$fqn_module->can($method), "$fqn_module is not loaded" );
