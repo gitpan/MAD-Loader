@@ -1,5 +1,5 @@
 package MAD::Loader;
-$MAD::Loader::VERSION = '3.001001';
+$MAD::Loader::VERSION = '3.001001_001';
 use Moo;
 extends 'Exporter';
 
@@ -232,7 +232,7 @@ MAD::Loader - A tiny module loader
 
 =head1 VERSION
 
-version 3.001001
+version 3.001001_001
 
 =head1 SYNOPSIS
 

@@ -9,6 +9,7 @@ README
 cpanfile
 dist.ini
 lib/MAD/Loader.pm
+t/00-loaded.t
 t/01-functions/01-fqn/01-fqn.t
 t/01-functions/02-load-module/01-core-modules/01-without-prefix.t
 t/01-functions/02-load-module/01-core-modules/02-with-prefix.t

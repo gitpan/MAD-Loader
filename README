@@ -2,7 +2,7 @@ NAME
     MAD::Loader - A tiny module loader
 
 VERSION
-    version 3.001001
+    version 3.001001_001
 
 SYNOPSIS
     MAD::loader is a module loader and object builder for situations when
