@@ -20,7 +20,8 @@ requires:
   Carp: '1.12'
   Const::Fast: '0.014'
   Moo: '1.004006'
+  perl: v5.8.9
 resources:
   bugtracker: https://github.com/blabos/MAD-Loader/issues
   repository: https://github.com/blabos/MAD-Loader
-version: 3.001001_001
+version: '3.001002'

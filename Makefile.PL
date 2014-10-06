@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-
+use 5.008009;
 
 use ExtUtils::MakeMaker ;
 
@@ -30,9 +30,9 @@ my %WriteMakefileArgs = (
     "Test::Most" => "0.34",
     "Test::Perl::Critic" => "1.02"
   },
-  "VERSION" => "3.001001_001",
+  "VERSION" => "3.001002",
   "test" => {
-    "TESTS" => "t/*.t t/01-functions/*.t t/01-functions/01-fqn/*.t t/01-functions/02-load-module/01-core-modules/*.t t/01-functions/02-load-module/02-non-core-modules/*.t t/01-functions/03-build-object/*.t t/02-methods/01-new/*.t t/02-methods/02-load/*.t t/02-methods/03-build/*.t t/02-methods/04-load-and-build/*.t"
+    "TESTS" => "t/*.t t/01-functions/*.t t/01-functions/01-fqn/*.t t/01-functions/02-load-module/*.t t/01-functions/03-build-object/*.t t/02-methods/01-new/*.t t/02-methods/02-load/*.t t/02-methods/03-build/*.t t/02-methods/04-load-and-build/*.t"
   }
 );
 

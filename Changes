@@ -1,6 +1,12 @@
 Revision history for MAD-Loader
 
-3.1.1   2014-10-10
+3.1.2   2014-10-06
+            - Removing redundant tests that failed in some archs.
+            These tests are unnecessary.
+            - Fixed some documentation issues.
+            - Setting a minimum perl version.
+
+3.1.1   2014-10-01
             - Fixed wrong interpolation in some tests
 
 3.1.0   2014-09-15

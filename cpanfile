@@ -1,3 +1,5 @@
+requires 'perl' => '5.8.9';
+
 requires 'Carp'        => '1.12';
 requires 'Const::Fast' => '0.014';
 requires 'Moo'         => '1.004006';

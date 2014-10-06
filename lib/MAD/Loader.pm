@@ -1,5 +1,5 @@
 package MAD::Loader;
-$MAD::Loader::VERSION = '3.001001_001';
+$MAD::Loader::VERSION = '3.001002';
 use Moo;
 extends 'Exporter';
 
@@ -232,14 +232,14 @@ MAD::Loader - A tiny module loader
 
 =head1 VERSION
 
-version 3.001001_001
+version 3.001002
 
 =head1 SYNOPSIS
 
 MAD::loader is a module loader and object builder for situations when you
 want several modules being loaded dynamically.
 
-For each module loaded this way an builder method may be called with
+For each module loaded this way a builder method may be called with
 or without arguments. You may also control where the loader will search for
 modules, you may prefix the module names with a custom namespace and you
 may change how it will behave on getting errors.
@@ -314,7 +314,7 @@ C<$prefix> is given, it will be prepended to the C<$module> before being
 validated.
 
 The fqn is validated against the regular expression in C<$MODULE_NAME_REGEX>
-which is C<qr{^[_[:lower:]]\w*(::\w+)*$}i>.
+which is C<qr{^[_[:upper:]]\w*(::\w+)*$}>.
 
 If a valid fqn can not be found then an empty string is returned.
 
@@ -535,7 +535,7 @@ Returns the CodeRef of the error handler.
 
 This module tries to define what is a valid module name. Arbitrarily we
 consider a valid module name whatever module that matches with the regular
-expression C<qr{^[_[:upper:]]\w*(::\w+)*$}i>.
+expression C<qr{^[_[:upper:]]\w*(::\w+)*$}>.
 
 This validation is to avoid injection of arbitrarily code as fake module
 names and the regular expression above should be changed in future versions
